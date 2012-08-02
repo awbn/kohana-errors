@@ -25,6 +25,12 @@ class Kohana_Exception extends Kohana_Kohana_Exception {
                 {
                     $attributes['action'] = $e->getCode();
                 }
+                
+                //Ensure initial request exists
+                if ( ! Request::$initial)
+                {
+	            	Request::factory();
+				}
  
                 // Error sub-request.
                 echo Request::factory(Route::get('error')->uri($attributes))

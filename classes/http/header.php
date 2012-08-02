@@ -5,11 +5,14 @@ class HTTP_Header extends Kohana_HTTP_Header {
 	/* See http://www.magentocommerce.com/boards/viewthread/229253/#t383462 */
 	protected function _send_headers_to_php(array $headers, $replace)
 	{
-		//Strip content type header for cgi-fpm
+		
+		Kohana::$log->add(Log::NOTICE, "Headers: ".implode('|',$headers));
+		
+		/*//Strip content type header for cgi-fpm
 		if (in_array(substr(php_sapi_name(), 0, 3), array('cgi', 'fpm')))
         {
         	// remove duplicate headers
-            $to_remove = array('status', 'content-type');
+            $to_remove = array('content-type');
 
             // already sent headers
             $sent = array();
@@ -36,7 +39,7 @@ class HTTP_Header extends Kohana_HTTP_Header {
                 if (in_array($name, $to_remove))
                 {
 	                // check sent headers
-                    if (in_array($name,$sent) AND $sent[$name])
+                    if (in_array($name, $sent) AND $sent[$name])
                     {
                      	unset($headers[$key]);
                         continue;
@@ -54,7 +57,7 @@ class HTTP_Header extends Kohana_HTTP_Header {
                     }
                 }
              }
-        }
+        }*/
         
         return parent::_send_headers_to_php($headers, $replace);
 	
