@@ -27,6 +27,10 @@ abstract class Kohana_Controller_Error extends Controller_Web {
 	 
 	    $this->response->status((int) $this->request->action());
 	}
+	
+	/*
+	 * Special case different HTTP error types
+	 */
 
 	public function action_401()
 	{
@@ -57,6 +61,5 @@ abstract class Kohana_Controller_Error extends Controller_Web {
 	{
 	    $this->template->title = __('Maintenance Mode');
 	}
- 
 
 }
