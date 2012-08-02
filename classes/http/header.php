@@ -6,6 +6,19 @@ class HTTP_Header extends Kohana_HTTP_Header {
 	protected function _send_headers_to_php(array $headers, $replace)
 	{
 		
+		foreach($headers as $key => $header)
+		{
+			 // parse name
+             if (!$pos = strpos($header, ':'))
+             	continue;
+                        
+             $name = strtolower(substr($header, 0, $pos));
+		
+             if ($name == "content-type")
+             	unset($headers[$key]);
+		
+		}
+		
 		Kohana::$log->add(Log::NOTICE, "Headers: ".implode('|',$headers));
 		
 		/*//Strip content type header for cgi-fpm
