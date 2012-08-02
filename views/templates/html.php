@@ -6,6 +6,6 @@
 </head>
 
 <body>
-<?php echo $content ?>
+<?php echo $content->render() ?>
 </body>
 </html>

@@ -14,7 +14,7 @@ abstract class Kohana_Controller_Web extends Controller_Template {
 		parent::before();
 		
 		$this->template->title = '';
-		$this->template->content = '';
+		$this->template->content = View::factory();
 	}
 	
 }

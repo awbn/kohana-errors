@@ -4,8 +4,9 @@ class Kohana_Exception extends Kohana_Kohana_Exception {
 
 	public static function handler(Exception $e)
 	{
-		//Kohana::$environment === Kohana::DEVELOPMENT OR
-		if ( Kohana::$is_cli)
+		
+		//Use the standard exception handler in development and from the command line
+		if (Kohana::$environment === Kohana::DEVELOPMENT OR Kohana::$is_cli)
 		{
 			parent::handler($e);
 		}
@@ -15,8 +16,7 @@ class Kohana_Exception extends Kohana_Kohana_Exception {
 			{
 				Kohana::$log->add(Log::ERROR, parent::text($e));
 				
-				$attributes = array
-                (
+				$attributes = array(
                     'action'  => 500,
                     'message' => rawurlencode($e->getMessage())
                 );
@@ -27,9 +27,9 @@ class Kohana_Exception extends Kohana_Kohana_Exception {
                 }
                 
                 //Ensure initial request exists
-                if ( ! Request::$initial)
+                if (!Request::$initial)
                 {
-	            	Request::factory();
+                	Request::factory();
 				}
  
                 // Error sub-request.

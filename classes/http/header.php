@@ -2,75 +2,30 @@
 
 class HTTP_Header extends Kohana_HTTP_Header {
 	
-	/* See http://www.magentocommerce.com/boards/viewthread/229253/#t383462 */
 	protected function _send_headers_to_php(array $headers, $replace)
 	{
 		
-		foreach($headers as $key => $header)
+		
+		if (isset($_SERVER['stripct']) AND $_SERVER['stripct'] == "true")
 		{
-			 // parse name
-             if (!$pos = strpos($header, ':'))
-             	continue;
-                        
-             $name = strtolower(substr($header, 0, $pos));
-		
-             if ($name == "content-type")
-             	unset($headers[$key]);
-		
-		}
-		
-		Kohana::$log->add(Log::NOTICE, "Headers: ".implode('|',$headers));
-		
-		/*//Strip content type header for cgi-fpm
-		if (in_array(substr(php_sapi_name(), 0, 3), array('cgi', 'fpm')))
-        {
-        	// remove duplicate headers
-            $to_remove = array('content-type');
-
-            // already sent headers
-            $sent = array();
-            foreach (headers_list() as $header)
-            {
-                // parse name
-                if (!$pos = strpos($header, ':'))
-                        continue;
-                        
-                $sent[strtolower(substr($header, 0, $pos))] = true;
-            }
-
-            $queued = array();
-
-            //Loop through and remove
-        	foreach($headers as $key => $header)
-        	{ 
-               // parse name
-                if (!$pos = strpos($header, ':'))
-                        continue;
-                        
-                $name = strtolower(substr($header, 0, $pos));
-
-                if (in_array($name, $to_remove))
-                {
-	                // check sent headers
-                    if (in_array($name, $sent) AND $sent[$name])
-                    {
-                     	unset($headers[$key]);
-                        continue;
-                    }
-                    
-                    //Check queued headers
-                    if (!is_null($existing = $queued[$name]))
-                    {
-                    	$headers[$existing] = $header;
-                        unset($headers[$key]);
-                    }
-                    else
-                    {
-                    	$queued[$name] = $key;
-                    }
-                }
-             }
-        }*/
+			//Strip content type header for cgi/fpm.  See e.g. http://www.magentocommerce.com/boards/viewthread/229253/#t383462
+			if (in_array(strtolower(substr(php_sapi_name(), 0, 3)), array('cgi', 'fpm')))
+	        {
+			
+				foreach($headers as $key => $header)
+				{
+					 // parse name
+		             if (!$pos = strpos($header, ':'))
+		             	continue;
+		                        
+		             $name = strtolower(substr($header, 0, $pos));
+				
+		             if ($name == "content-type")
+		             	unset($headers[$key]);
+				
+				}
+			}
+        }
         
         return parent::_send_headers_to_php($headers, $replace);
 	
