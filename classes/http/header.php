@@ -2,6 +2,7 @@
 
 class HTTP_Header extends Kohana_HTTP_Header {
 	
+	/* See http://www.magentocommerce.com/boards/viewthread/229253/#t383462 */
 	protected function _send_headers_to_php(array $headers, $replace)
 	{
 		//Strip content type header for cgi-fpm
@@ -35,7 +36,7 @@ class HTTP_Header extends Kohana_HTTP_Header {
                 if (in_array($name, $to_remove))
                 {
 	                // check sent headers
-                    if ($sent[$name])
+                    if (in_array($name,$sent) AND $sent[$name])
                     {
                      	unset($headers[$key]);
                         continue;
