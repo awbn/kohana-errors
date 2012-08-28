@@ -1,11 +1,11 @@
-<?php defined('SYSPATH') or die('No direct script access.');
+<?php defined('SYSPATH') OR die('No direct script access.');
 
 class Kohana_Exception extends Kohana_Kohana_Exception {
 
 	public static function handler(Exception $e)
 	{
 		
-		//Use the standard exception handler in development and from the command line
+		// Use the standard exception handler in development and from the command line
 		if (Kohana::$environment === Kohana::DEVELOPMENT OR Kohana::$is_cli)
 		{
 			parent::handler($e);
@@ -26,8 +26,8 @@ class Kohana_Exception extends Kohana_Kohana_Exception {
                     $attributes['action'] = $e->getCode();
                 }
                 
-                //Ensure initial request exists
-                if (!Request::$initial)
+                // Ensure initial request exists
+                if ( ! Request::$initial)
                 {
                 	Request::factory();
 				}
@@ -41,7 +41,7 @@ class Kohana_Exception extends Kohana_Kohana_Exception {
             catch (Exception $e)
             {
                 // Clean the output buffer if one exists
-                ob_get_level() and ob_clean();
+                ob_get_level() AND ob_clean();
  
                 // Display the exception text
                 echo parent::text($e);

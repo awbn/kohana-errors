@@ -5,7 +5,7 @@
  * Should be superseded by the application template
  *
  **/
-abstract class Kohana_Controller_Web extends Controller_Template {
+abstract class Kohana_Controller_Page extends Controller_Template {
 
 	public  $template 	= 'templates/html';
 			
