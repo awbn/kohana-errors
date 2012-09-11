@@ -1,20 +1,56 @@
 <?php defined('SYSPATH') OR die('No direct script access.');
 
+/**
+ * Kohana_Exception class.  Extends the internal exception handler.
+ * 
+ * @extends Kohana_Kohana_Exception
+ */
 class Kohana_Exception extends Kohana_Kohana_Exception {
 
-	public static function handler(Exception $e)
+	/**
+	 * Override the Kohana exception handler to intellegently route errors.
+	 * 
+	 * @access public
+	 * @static
+	 * @param Exception $e
+	 * @param bool $mock Is this just a mock handler?
+	 * @return void
+	 */
+	public static function handler(Exception $e, $mock = FALSE)
 	{
-		
 		// Use the standard exception handler in development and from the command line
 		if (Kohana::$environment === Kohana::DEVELOPMENT OR Kohana::$is_cli)
-		{
+		{	
+			// If we are mocking the exception handler (e.g. for tests), just echo the cli portion of Kohana's logic and return
+			// We do this because Kohana uses the exit() statements to control logic flow, which messes up unit tests
+			if ($mock AND Kohana::$is_cli)
+			{
+				$error = Kohana_Exception::text($e);
+				
+				// Just display the text of the exception
+				echo "\n{$error}\n";
+
+				return;
+			}
+			
+			// Call the inbuilt exception handler
 			parent::handler($e);
 		}
 		else
 		{
 			try
 			{
-				Kohana::$log->add(Log::ERROR, parent::text($e));
+				if (is_object(Kohana::$log) AND ! $mock)
+				{
+					// Add this exception to the log
+					Kohana::$log->add(Log::ERROR, Kohana_Exception::text($e));
+	
+					$strace = Kohana_Exception::text($e)."\n--\n".$e->getTraceAsString();
+					Kohana::$log->add(Log::STRACE, $strace);
+	
+					// Make sure the logs are written
+					Kohana::$log->write();
+				}
 				
 				$attributes = array(
                     'action'  => 500,
@@ -33,10 +69,16 @@ class Kohana_Exception extends Kohana_Kohana_Exception {
 				}
  
                 // Error sub-request.
-                echo Request::factory(Route::get('error')->uri($attributes))
-                	->execute()
-                	->send_headers()
-                	->body();
+                $response = Request::factory(Route::get('error')->uri($attributes))->execute();
+               
+                if ( ! $mock)
+                {
+                	echo $response->send_headers()->body();
+                }
+                else
+                {
+                	return $response;
+                }
             }
             catch (Exception $e)
             {
@@ -44,7 +86,7 @@ class Kohana_Exception extends Kohana_Kohana_Exception {
                 ob_get_level() AND ob_clean();
  
                 // Display the exception text
-                echo parent::text($e);
+                echo Kohana_Exception::text($e);
  
                 // Exit with an error status
                 exit(1);
