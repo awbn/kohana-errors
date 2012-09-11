@@ -219,15 +219,16 @@ Class KohanaErrorsTest extends Unittest_TestCase
 			'Request::$initial' => NULL,
 		));
 		
-		Route::set('default','(errors-tests/<action>)')
-			->defaults(array(
-				'controller' => 'KohanaErrorsTest',
-				'action'     => 'index',
+		$route = new Route('errors-tests/<action>');
+		
+		$route->defaults(array(
+			'controller' => 'KohanaErrorsTest',
+			'action'     => 'index',
 		));
 		
 		try
 		{
-			Request::factory($uri)->execute();
+			Request::factory($uri, NULL, array($route))->execute();
 		}
 		catch(Exception $e)
 		{
