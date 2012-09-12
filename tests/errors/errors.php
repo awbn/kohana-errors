@@ -3,7 +3,7 @@
 /**
  * Tests the errors module
  *
- * @group kohana-errors
+ * @group modules.errors
  */
 Class KohanaErrorsTest extends Unittest_TestCase
 {
@@ -19,14 +19,19 @@ Class KohanaErrorsTest extends Unittest_TestCase
 	/**
 	 * Set environment to production.  We only want to run tests against production.
 	 * 
+	 * @codingStandardsIgnoreStart
 	 * @access public
 	 * @return void
 	 */
+	 // @codingStandardsIgnoreStart PHPUnit required naming conventions
 	function setUp()
 	{
+	// @codingStandardsIgnoreEnd
 		parent::setUp();
 		$this->_old_environment = Kohana::$environment;
 		Kohana::$environment = Kohana::PRODUCTION;
+		
+		$log = $this->getMock('Log', array('add','write'));
 	}
 	
 	/**
@@ -35,8 +40,10 @@ Class KohanaErrorsTest extends Unittest_TestCase
 	 * @access public
 	 * @return void
 	 */
+	 // @codingStandardsIgnoreStart PHPUnit required naming conventions
 	function tearDown()
 	{
+	// @codingStandardsIgnoreEnd
 		Kohana::$environment = $this->_old_environment;
 		parent::tearDown();
 	}
@@ -53,7 +60,7 @@ Class KohanaErrorsTest extends Unittest_TestCase
 	}
 	
 	/**
-	 * Provides a set of uris to test the error controller against
+	 * Provides a set of uris to test the error route against
 	 * 
 	 * @access public
 	 * @return void
@@ -74,9 +81,9 @@ Class KohanaErrorsTest extends Unittest_TestCase
 	 * 
 	 * @dataProvider provider_error_route
 	 * @access public
-	 * @param string $uri
-	 * @param int $expected
-	 * @param string $action
+	 * @param string $uri internal uri
+	 * @param int $expected expected status
+	 * @param string $action expected response action
 	 * @return void
 	 */
 	function test_error_route($uri,$status,$action)
@@ -161,7 +168,7 @@ Class KohanaErrorsTest extends Unittest_TestCase
 	}
 	
 	/**
-	 * Tests throwing an exception in CLI
+	 * Tests throwing an exception from the CLI
 	 * 
 	 * @access public
 	 * @return void
@@ -197,9 +204,10 @@ Class KohanaErrorsTest extends Unittest_TestCase
 			array('errors-tests/phperror', 500),
 			array('errors-tests/servererror', 500),
 			array('errors-tests/accessdenied', 401),
-			array('errors-tests/hiddenaction', 404),
+			array('errors-tests/hidden', 404),
 			array('errors-tests/specialerror', 505),
 			array('errors-tests/generalex', 500),
+			array('errors-tests/ok', 200),
 		);
 	}
 	
@@ -228,13 +236,14 @@ Class KohanaErrorsTest extends Unittest_TestCase
 		
 		try
 		{
-			Request::factory($uri, NULL, array($route))->execute();
+			$response = Request::factory($uri, NULL, array($route))->execute();
 		}
 		catch(Exception $e)
 		{
 			$response = Kohana_Exception::handler($e, TRUE);
-			$this->assertSame($response->status(), $expected);
 		}
+		
+		$this->assertSame($response->status(), $expected);
 		
 	}
 
@@ -268,13 +277,18 @@ class Controller_KohanaErrorsTest extends Controller
 		throw new HTTP_Exception_401('Access Denied');
 	}
 	
-	public function action_hiddenaction()
+	public function action_hidden()
 	{
 		throw new HTTP_Exception_404('Hidden');
 	}
 	
 	public function action_specialerror()
 	{
-		throw new HTTP_Exception_505('likely unhandled special case');
+		throw new HTTP_Exception_505('likely unhandled generic case');
+	}
+	
+	public function action_ok()
+	{
+		$this->response->body("I should be a normal request");
 	}
 } 
