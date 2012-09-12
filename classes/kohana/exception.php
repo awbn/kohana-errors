@@ -13,17 +13,17 @@ class Kohana_Exception extends Kohana_Kohana_Exception {
 	 * @access public
 	 * @static
 	 * @param Exception $e
-	 * @param bool $mock Is this just a mock handler?
+	 * @param boolean $exit Exit on completion?
 	 * @return void
 	 */
-	public static function handler(Exception $e, $mock = FALSE)
+	public static function handler(Exception $e, $exit = TRUE)
 	{
 		// Use the standard exception handler in development and from the command line
 		if (Kohana::$environment === Kohana::DEVELOPMENT OR Kohana::$is_cli)
 		{	
-			// If we are mocking the exception handler (e.g. for tests), just echo the cli portion of Kohana's logic and return
-			// We do this because Kohana uses the exit() statements to control logic flow, which messes up unit tests
-			if ($mock AND Kohana::$is_cli)
+			// If we are returning from the exception handler (e.g. for tests), just echo the cli portion of Kohana's logic and return
+			// We do this because Kohana uses exit() statements to control logic flow, which messes up unit tests
+			if ( ! $exit AND Kohana::$is_cli)
 			{
 				$error = Kohana_Exception::text($e);
 				
@@ -40,7 +40,7 @@ class Kohana_Exception extends Kohana_Kohana_Exception {
 		{
 			try
 			{
-				if (is_object(Kohana::$log) AND ! $mock)
+				if (is_object(Kohana::$log))
 				{
 					// Add this exception to the log
 					Kohana::$log->add(Log::ERROR, Kohana_Exception::text($e));
@@ -71,7 +71,7 @@ class Kohana_Exception extends Kohana_Kohana_Exception {
                 // Error sub-request.
                 $response = Request::factory(Route::get('error')->uri($attributes))->execute();
                
-                if ( ! $mock)
+                if ($exit)
                 {
                 	echo $response->send_headers()->body();
                 }
@@ -89,7 +89,10 @@ class Kohana_Exception extends Kohana_Kohana_Exception {
                 echo Kohana_Exception::text($e);
  
                 // Exit with an error status
-                exit(1);
+                if ($exit)
+                {
+                	exit(1);
+                }
             }
         }
     }

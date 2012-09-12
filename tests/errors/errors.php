@@ -30,8 +30,6 @@ Class KohanaErrorsTest extends Unittest_TestCase
 		parent::setUp();
 		$this->_old_environment = Kohana::$environment;
 		Kohana::$environment = Kohana::PRODUCTION;
-		
-		$log = $this->getMock('Log', array('add','write'));
 	}
 	
 	/**
@@ -162,7 +160,7 @@ Class KohanaErrorsTest extends Unittest_TestCase
 		
 		$e = new $exception('foobar');
 		
-		$response = Kohana_Exception::handler($e, TRUE);
+		$response = Kohana_Exception::handler($e, FALSE);
 		
 		$this->assertSame($response->status(), $expected);
 	}
@@ -179,7 +177,6 @@ Class KohanaErrorsTest extends Unittest_TestCase
 		$this->setEnvironment(array(
 			'Kohana::$is_cli' => TRUE,
 			'Request::$initial' => NULL,
-			
 		));
 		
 		$e = new Kohana_Exception("foobar");
@@ -187,7 +184,7 @@ Class KohanaErrorsTest extends Unittest_TestCase
 		
 		$this->expectOutputString("\n{$error}\n");
 		
-		Kohana_Exception::handler($e, TRUE);
+		Kohana_Exception::handler($e, FALSE);
 	}
 	
 	/**
@@ -240,7 +237,7 @@ Class KohanaErrorsTest extends Unittest_TestCase
 		}
 		catch(Exception $e)
 		{
-			$response = Kohana_Exception::handler($e, TRUE);
+			$response = Kohana_Exception::handler($e, FALSE);
 		}
 		
 		$this->assertSame($response->status(), $expected);
